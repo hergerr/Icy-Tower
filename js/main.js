@@ -26,14 +26,13 @@ function preload ()
 {
     this.load.image('sky', 'assets/sky.png');
     this.load.image('ground', 'assets/platform.png');
-    this.load.image('star', 'assets/star.png');
-    this.load.image('bomb', 'assets/bomb.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
 }
 
 function create ()
 {
     this.add.image(400, 300, 'sky');
+    this.cameras.main.setBounds(0, 0, 1920 * 2, 1080 * 2);
 
     platforms = this.physics.add.staticGroup();
 
@@ -48,6 +47,7 @@ function create ()
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
 
+    // animacja postaci
     this.anims.create({
         key: 'left',
         frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -71,6 +71,9 @@ function create ()
     cursors = this.input.keyboard.createCursorKeys();
 
     this.physics.add.collider(player, platforms);
+    this.cameras.main.startFollow(player);
+
+    this.cameras.main.followOffset.set(0, 220);
 }
 
 function update ()
@@ -94,7 +97,7 @@ function update ()
         player.anims.play('turn');
     }
 
-    if (cursors.up.isDown && player.body.touching.down)
+    if (cursors.space.isDown && player.body.touching.down)
     {
         player.setVelocityY(-330);
     }
