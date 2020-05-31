@@ -67,7 +67,16 @@ export default class Game extends Phaser.Scene {
         });
 
         // kolizja platform i marchewek
-        this.physics.add.collider(this.platforms, this.carrots)
+        this.physics.add.collider(this.platforms, this.carrots);
+
+        // logika zbierania (kolejnosc: obiekty, callback, kolejny callback, kontekst)
+        this.physics.add.overlap(
+            this.player,
+            this.carrots,
+            this.handleCollectCarrot, // called on overlap
+            undefined,
+            this
+        )
     }
 
     update(t, dt) {
@@ -134,5 +143,17 @@ export default class Game extends Phaser.Scene {
         carrot.body.setSize(carrot.width, carrot.height);
 
         return carrot
+    }
+
+    /**
+    * @param {Phaser.Physics.Arcade.Sprite} player
+    * @param {Carrot} carrot
+    */
+    handleCollectCarrot(player, carrot) {
+        // hide from display
+        this.carrots.killAndHide(carrot)
+
+        // disable from physics world
+        this.physics.world.disableBody(carrot.body)
     }
 }
