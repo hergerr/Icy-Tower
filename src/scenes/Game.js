@@ -32,6 +32,8 @@ export default class Game extends Phaser.Scene {
         this.load.image('bunny-stand', 'assets/bunny1_stand.png');
         this.load.image('carrot', 'assets/carrot.png');
 
+        this.load.audio('jump', 'assets/sfx/phaseJump1.ogg');
+
         // sterowanie - inicjalizacja
         this.cursors = this.input.keyboard.createCursorKeys();
     }
@@ -115,6 +117,7 @@ export default class Game extends Phaser.Scene {
         if (touchingDown) {
             // jesli tak, to skacz do góry
             this.player.setVelocityY(-300);
+            this.sound.play('jump');
         }
 
         // starowanie w lewo i prawo podczas lotu
