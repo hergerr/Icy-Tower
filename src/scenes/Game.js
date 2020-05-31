@@ -7,6 +7,9 @@ export default class Game extends Phaser.Scene {
     /** @type {Phaser.Physics.Arcade.Sprite} */
     player
 
+    /* @type {Phaser.Types.Input.Keyboard.CursorKeys} */
+    cursors
+
     constructor() {
         // klucz, unikalny dla kazdej sceny
         super('game');
@@ -17,6 +20,9 @@ export default class Game extends Phaser.Scene {
         this.load.image('background', 'assets/bg_layer1.png');
         this.load.image('platform', 'assets/ground_grass.png');
         this.load.image('bunny-stand', 'assets/bunny1_stand.png');
+
+        // sterowanie - inicjalizacja
+        this.cursors = this.input.keyboard.createCursorKeys()
     }
 
     create() {
@@ -49,29 +55,54 @@ export default class Game extends Phaser.Scene {
         this.player.body.checkCollision.right = false;
 
         // kamera sledzi playera
-        this.cameras.main.startFollow(this.player)
+        this.cameras.main.startFollow(this.player);
+        this.cameras.main.setDeadzone(this.scale.width * 1.5);
     }
 
-    update() {
+    update(t, dt) {
 
         // iteracja po wszystkich platformach z grupy,
         // i sprawdzenie czy wyszła poza ekran
-        // TODO sprawdzic wsporzedne
         this.platforms.children.iterate(child => {
             /** @type {Phaser.Physics.Arcade.Sprite} */
-            const platform = child
-            const scrollY = this.cameras.main.scrollY
+            const platform = child;
+            const scrollY = this.cameras.main.scrollY;
             if (platform.y >= scrollY + 700) {
-                platform.y = scrollY - Phaser.Math.Between(50, 100)
-                platform.body.updateFromGameObject()
+                platform.y = scrollY - Phaser.Math.Between(50, 100);
+                platform.body.updateFromGameObject();
             }
         })
 
         // sprawdzenie czy player dotyka platformy
-        const touchingDown = this.player.body.touching.down
+        const touchingDown = this.player.body.touching.down;
         if (touchingDown) {
             // jesli tak, to skacz do góry
-            this.player.setVelocityY(-300)
+            this.player.setVelocityY(-300);
+        }
+
+        // starowanie w lewo i prawo podczas lotu
+        if (this.cursors.left.isDown && !touchingDown) {
+            this.player.setVelocityX(-200);
+        }
+        else if (this.cursors.right.isDown && !touchingDown) {
+            this.player.setVelocityX(200);
+        }
+        else {
+            this.player.setVelocityX(0);
+        }
+
+        // przechodzenie przez sciany
+        this.horizontalWrap(this.player);
+    }
+
+    horizontalWrap(sprite) {
+        const halfWidth = sprite.displayWidth * 0.5
+        const gameWidth = this.scale.width
+        if (sprite.x < -halfWidth) {
+            sprite.x = gameWidth + halfWidth
+        }
+        else if (sprite.x > gameWidth + halfWidth) {
+            sprite.x = -halfWidth
         }
     }
 }
