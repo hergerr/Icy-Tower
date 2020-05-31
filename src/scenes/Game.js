@@ -18,6 +18,12 @@ export default class Game extends Phaser.Scene {
         // klucz, unikalny dla kazdej sceny
         super('game');
     }
+
+    // init - glownie do inicjalizacji zmiennych
+    init() {
+        this.carrotsCollected = 0
+    }
+
     preload() {
         // sciezka nie jest wzgledna do obecnego pliku, ale do tego jak widzi to serwer, 
         // czyli jest to sciezka wgledna to roota projektu
@@ -100,7 +106,6 @@ export default class Game extends Phaser.Scene {
                 platform.y = scrollY - Phaser.Math.Between(50, 100);
                 platform.body.updateFromGameObject();
 
-                //add carrot to platform
                 this.addCarrotAbove(platform);
             }
         })
@@ -125,6 +130,13 @@ export default class Game extends Phaser.Scene {
 
         // przechodzenie przez sciany
         this.horizontalWrap(this.player);
+
+        // jesli zostanie przekroczona najnizsza platforma,
+        // pokaz scene game-over
+        const bottomPlatform = this.findBottomMostPlatform()
+        if (this.player.y > bottomPlatform.y + 200) {
+            this.scene.start('game-over');
+        }
     }
 
     horizontalWrap(sprite) {
@@ -174,5 +186,22 @@ export default class Game extends Phaser.Scene {
         this.carrotsCollected++;
         const value = `Carrots: ${this.carrotsCollected}`;
         this.carrotsCollectedText.text = value;
+    }
+
+    // znajdywanie najnizszej platformy
+    findBottomMostPlatform() {
+        const platforms = this.platforms.getChildren()
+        let bottomPlatform = platforms[0]
+        for (let i = 1; i < platforms.length; ++i) {
+            const platform = platforms[i]
+
+            if (platform.y < bottomPlatform.y) {
+                continue
+            }
+
+            bottomPlatform = platform
+        }
+
+        return bottomPlatform
     }
 }
