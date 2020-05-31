@@ -2,7 +2,7 @@ import Phaser from '../lib/phaser.js';
 import Carrot from '../game/Carrot.js'
 
 export default class Game extends Phaser.Scene {
-
+    carrotsCollected = 0;
     /** @type {Phaser.Physics.Arcade.StaticGroup} */
     platforms
     /** @type {Phaser.Physics.Arcade.Sprite} */
@@ -11,6 +11,8 @@ export default class Game extends Phaser.Scene {
     cursors
     /** @type {Phaser.Physics.Arcade.Group} */
     carrots
+    /** @type {Phaser.GameObjects.Text} */
+    carrotsCollectedText
 
     constructor() {
         // klucz, unikalny dla kazdej sceny
@@ -76,7 +78,14 @@ export default class Game extends Phaser.Scene {
             this.handleCollectCarrot, // called on overlap
             undefined,
             this
-        )
+        );
+
+        // tekst z wynikiem
+        const style = { color: '#000', fontSize: 24 }
+        this.carrotsCollectedText = this.add.text(240, 10, 'Carrots: 0'
+            , style)
+            .setScrollFactor(0)
+            .setOrigin(0.5, 0);
     }
 
     update(t, dt) {
@@ -137,12 +146,18 @@ export default class Game extends Phaser.Scene {
         /** @type {Phaser.Physics.Arcade.Sprite} */
         const carrot = this.carrots.get(sprite.x, y, 'carrot');
 
+        // set active and visible
+        carrot.setActive(true);
+        carrot.setVisible(true);
+
         this.add.existing(carrot);
 
         // aktualizacja fizyki do rozmiaru ciała ktore bylo wczesniej przeskalowane
         carrot.body.setSize(carrot.width, carrot.height);
 
-        return carrot
+        // uaktywnienie fizyki
+        this.physics.world.enable(carrot);
+        return carrot;
     }
 
     /**
@@ -150,10 +165,14 @@ export default class Game extends Phaser.Scene {
     * @param {Carrot} carrot
     */
     handleCollectCarrot(player, carrot) {
-        // hide from display
-        this.carrots.killAndHide(carrot)
+        // schowanie
+        this.carrots.killAndHide(carrot);
 
-        // disable from physics world
-        this.physics.world.disableBody(carrot.body)
+        // deakctywacja fizyki
+        this.physics.world.disableBody(carrot.body);
+
+        this.carrotsCollected++;
+        const value = `Carrots: ${this.carrotsCollected}`;
+        this.carrotsCollectedText.text = value;
     }
 }
