@@ -1,4 +1,5 @@
 import Phaser from '../lib/phaser.js';
+import Carrot from '../game/Carrot.js'
 
 export default class Game extends Phaser.Scene {
 
@@ -6,9 +7,10 @@ export default class Game extends Phaser.Scene {
     platforms
     /** @type {Phaser.Physics.Arcade.Sprite} */
     player
-
-    /* @type {Phaser.Types.Input.Keyboard.CursorKeys} */
+    /**  @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     cursors
+    /** @type {Phaser.Physics.Arcade.Group} */
+    carrots
 
     constructor() {
         // klucz, unikalny dla kazdej sceny
@@ -20,9 +22,10 @@ export default class Game extends Phaser.Scene {
         this.load.image('background', 'assets/bg_layer1.png');
         this.load.image('platform', 'assets/ground_grass.png');
         this.load.image('bunny-stand', 'assets/bunny1_stand.png');
+        this.load.image('carrot', 'assets/carrot.png');
 
         // sterowanie - inicjalizacja
-        this.cursors = this.input.keyboard.createCursorKeys()
+        this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     create() {
@@ -49,7 +52,7 @@ export default class Game extends Phaser.Scene {
         // kolizja
         this.physics.add.collider(this.platforms, this.player);
 
-        // wyloczenie kolizji w wyjątkiem góry platformy
+        // wyloczenie kolizji w wyjątkiem dołu gracza
         this.player.body.checkCollision.up = false;
         this.player.body.checkCollision.left = false;
         this.player.body.checkCollision.right = false;
@@ -57,6 +60,14 @@ export default class Game extends Phaser.Scene {
         // kamera sledzi playera
         this.cameras.main.startFollow(this.player);
         this.cameras.main.setDeadzone(this.scale.width * 1.5);
+
+        // grupa marchewek
+        this.carrots = this.physics.add.group({
+            classType: Carrot
+        });
+
+        // kolizja platform i marchewek
+        this.physics.add.collider(this.platforms, this.carrots)
     }
 
     update(t, dt) {
@@ -70,6 +81,9 @@ export default class Game extends Phaser.Scene {
             if (platform.y >= scrollY + 700) {
                 platform.y = scrollY - Phaser.Math.Between(50, 100);
                 platform.body.updateFromGameObject();
+
+                //add carrot to platform
+                this.addCarrotAbove(platform);
             }
         })
 
@@ -104,5 +118,21 @@ export default class Game extends Phaser.Scene {
         else if (sprite.x > gameWidth + halfWidth) {
             sprite.x = -halfWidth
         }
+    }
+
+    /**
+    * @param {Phaser.GameObjects.Sprite} sprite
+    */
+    addCarrotAbove(sprite) {
+        const y = sprite.y - sprite.displayHeight
+        /** @type {Phaser.Physics.Arcade.Sprite} */
+        const carrot = this.carrots.get(sprite.x, y, 'carrot');
+
+        this.add.existing(carrot);
+
+        // aktualizacja fizyki do rozmiaru ciała ktore bylo wczesniej przeskalowane
+        carrot.body.setSize(carrot.width, carrot.height);
+
+        return carrot
     }
 }
