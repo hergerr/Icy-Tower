@@ -28,9 +28,9 @@ export default class Game extends Phaser.Scene {
         // sciezka nie jest wzgledna do obecnego pliku, ale do tego jak widzi to serwer, 
         // czyli jest to sciezka wgledna to roota projektu
         this.load.image('background', 'assets/bg_layer1.png');
-        this.load.image('platform', 'assets/ground_grass.png');
-        this.load.image('bunny-stand', 'assets/bunny1_stand.png');
-        this.load.image('carrot', 'assets/carrot.png');
+        this.load.image('platform', 'assets/ground_stone.png');
+        this.load.image('bunny-stand', 'assets/flyMan_stand.png');
+        this.load.image('carrot', 'assets/gold_1.png');
 
         this.load.audio('jump', 'assets/sfx/phaseJump1.ogg');
 
@@ -187,7 +187,7 @@ export default class Game extends Phaser.Scene {
         this.physics.world.disableBody(carrot.body);
 
         this.carrotsCollected++;
-        const value = `Carrots: ${this.carrotsCollected}`;
+        const value = `Coins: ${this.carrotsCollected}`;
         this.carrotsCollectedText.text = value;
     }
 
