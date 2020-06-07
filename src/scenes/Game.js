@@ -1,8 +1,8 @@
 import Phaser from '../lib/phaser.js';
-import Carrot from '../game/Carrot.js'
+import Coin from '../game/Coin.js'
 
 export default class Game extends Phaser.Scene {
-    carrotsCollected = 0;
+    coinsCollected = 0;
     /** @type {Phaser.Physics.Arcade.StaticGroup} */
     platforms
     /** @type {Phaser.Physics.Arcade.Sprite} */
@@ -10,9 +10,9 @@ export default class Game extends Phaser.Scene {
     /**  @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     cursors
     /** @type {Phaser.Physics.Arcade.Group} */
-    carrots
+    coins
     /** @type {Phaser.GameObjects.Text} */
-    carrotsCollectedText
+    coinsCollectedText
 
     constructor() {
         // klucz, unikalny dla kazdej sceny
@@ -21,7 +21,7 @@ export default class Game extends Phaser.Scene {
 
     // init - glownie do inicjalizacji zmiennych
     init() {
-        this.carrotsCollected = 0
+        this.coinsCollected = 0
     }
 
     preload() {
@@ -29,8 +29,8 @@ export default class Game extends Phaser.Scene {
         // czyli jest to sciezka wgledna to roota projektu
         this.load.image('background', 'assets/bg_layer1.png');
         this.load.image('platform', 'assets/ground_stone.png');
-        this.load.image('bunny-stand', 'assets/flyMan_stand.png');
-        this.load.image('carrot', 'assets/gold_1.png');
+        this.load.image('flyman', 'assets/flyMan_stand.png');
+        this.load.image('coin', 'assets/gold_1.png');
 
         this.load.audio('jump', 'assets/sfx/phaseJump1.ogg');
 
@@ -57,7 +57,7 @@ export default class Game extends Phaser.Scene {
         }
 
         // gracz jako wlasnosc klasy
-        this.player = this.physics.add.sprite(240, 320, 'bunny-stand').setScale(0.5);
+        this.player = this.physics.add.sprite(240, 320, 'flyman').setScale(0.5);
 
         // kolizja
         this.physics.add.collider(this.platforms, this.player);
@@ -72,25 +72,25 @@ export default class Game extends Phaser.Scene {
         this.cameras.main.setDeadzone(this.scale.width * 1.5);
 
         // grupa marchewek
-        this.carrots = this.physics.add.group({
-            classType: Carrot
+        this.coins = this.physics.add.group({
+            classType: Coin
         });
 
         // kolizja platform i marchewek
-        this.physics.add.collider(this.platforms, this.carrots);
+        this.physics.add.collider(this.platforms, this.coins);
 
         // logika zbierania (kolejnosc: obiekty, callback, kolejny callback, kontekst)
         this.physics.add.overlap(
             this.player,
-            this.carrots,
-            this.handleCollectCarrot, // called on overlap
+            this.coins,
+            this.handleCollectCoin, // called on overlap
             undefined,
             this
         );
 
         // tekst z wynikiem
         const style = { color: '#000', fontSize: 24 }
-        this.carrotsCollectedText = this.add.text(240, 10, 'Carrots: 0'
+        this.coinsCollectedText = this.add.text(240, 10, 'Coins: 0'
             , style)
             .setScrollFactor(0)
             .setOrigin(0.5, 0);
@@ -108,7 +108,7 @@ export default class Game extends Phaser.Scene {
                 platform.y = scrollY - Phaser.Math.Between(50, 100);
                 platform.body.updateFromGameObject();
 
-                this.addCarrotAbove(platform);
+                this.addCoinAbove(platform);
             }
         })
 
@@ -156,39 +156,39 @@ export default class Game extends Phaser.Scene {
     /**
     * @param {Phaser.GameObjects.Sprite} sprite
     */
-    addCarrotAbove(sprite) {
+    addCoinAbove(sprite) {
         const y = sprite.y - sprite.displayHeight
         /** @type {Phaser.Physics.Arcade.Sprite} */
-        const carrot = this.carrots.get(sprite.x, y, 'carrot');
+        const coin = this.coins.get(sprite.x, y, 'coin');
 
         // set active and visible
-        carrot.setActive(true);
-        carrot.setVisible(true);
+        coin.setActive(true);
+        coin.setVisible(true);
 
-        this.add.existing(carrot);
+        this.add.existing(coin);
 
         // aktualizacja fizyki do rozmiaru ciała ktore bylo wczesniej przeskalowane
-        carrot.body.setSize(carrot.width, carrot.height);
+        coin.body.setSize(coin.width, coin.height);
 
         // uaktywnienie fizyki
-        this.physics.world.enable(carrot);
-        return carrot;
+        this.physics.world.enable(coin);
+        return coin;
     }
 
     /**
     * @param {Phaser.Physics.Arcade.Sprite} player
-    * @param {Carrot} carrot
+    * @param {Coin} coin
     */
-    handleCollectCarrot(player, carrot) {
+    handleCollectCoin(player, coin) {
         // schowanie
-        this.carrots.killAndHide(carrot);
+        this.coins.killAndHide(coin);
 
         // deakctywacja fizyki
-        this.physics.world.disableBody(carrot.body);
+        this.physics.world.disableBody(coin.body);
 
-        this.carrotsCollected++;
-        const value = `Coins: ${this.carrotsCollected}`;
-        this.carrotsCollectedText.text = value;
+        this.coinsCollected++;
+        const value = `Coins: ${this.coinsCollected}`;
+        this.coinsCollectedText.text = value;
     }
 
     // znajdywanie najnizszej platformy
