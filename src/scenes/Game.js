@@ -29,8 +29,9 @@ export default class Game extends Phaser.Scene {
         // czyli jest to sciezka wgledna to roota projektu
         this.load.image('background', 'assets/bg_layer1.png');
         this.load.image('platform', 'assets/ground_stone.png');
-        this.load.image('flyman', 'assets/flyMan_stand.png');
+        this.load.image('flyman', 'assets/flyMan_still_stand.png');
         this.load.image('coin', 'assets/gold_1.png');
+        this.load.image('brokenPlatform', 'assets/ground_stone_broken.png');
 
         this.load.audio('jump', 'assets/sfx/phaseJump1.ogg');
 
@@ -45,11 +46,17 @@ export default class Game extends Phaser.Scene {
 
         // platformy - zmienna klasy
         this.platforms = this.physics.add.staticGroup()
-        for (let i = 0; i < 5; ++i) {
+        for (let i = 0; i < 10; ++i) {
             const x = Phaser.Math.Between(80, 400)
-            const y = 150 * i
+            const y = 100 * i
             /** @type {Phaser.Physics.Arcade.Sprite} */
-            const platform = this.platforms.create(x, y, 'platform')
+
+            let platform;
+            if (i < 5){
+                platform  = this.platforms.create(x, y, 'platform');
+            } else {
+                platform = this.platforms.create(x, y, 'brokenPlatform');
+            }
             platform.scale = 0.5
             /** @type {Phaser.Physics.Arcade.StaticBody} */
             const body = platform.body
@@ -71,12 +78,12 @@ export default class Game extends Phaser.Scene {
         this.cameras.main.startFollow(this.player);
         this.cameras.main.setDeadzone(this.scale.width * 1.5);
 
-        // grupa marchewek
+        // grupa monet
         this.coins = this.physics.add.group({
             classType: Coin
         });
 
-        // kolizja platform i marchewek
+        // kolizja platform i monet
         this.physics.add.collider(this.platforms, this.coins);
 
         // logika zbierania (kolejnosc: obiekty, callback, kolejny callback, kontekst)
