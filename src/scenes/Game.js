@@ -46,21 +46,17 @@ export default class Game extends Phaser.Scene {
 
         // platformy - zmienna klasy
         this.platforms = this.physics.add.staticGroup()
-        for (let i = 0; i < 10; ++i) {
+        for (let i = 0; i < 5; ++i) {
             const x = Phaser.Math.Between(80, 400)
-            const y = 100 * i
+            const y = 150 * i;
             /** @type {Phaser.Physics.Arcade.Sprite} */
 
-            let platform;
-            if (i < 5){
-                platform  = this.platforms.create(x, y, 'platform');
-            } else {
-                platform = this.platforms.create(x, y, 'brokenPlatform');
-            }
-            platform.scale = 0.5
+            const platform  = this.platforms.create(x, y, 'platform');
+
+            platform.scale = 0.5;
             /** @type {Phaser.Physics.Arcade.StaticBody} */
-            const body = platform.body
-            body.updateFromGameObject()
+            const body = platform.body;
+            body.updateFromGameObject();
         }
 
         // gracz jako wlasnosc klasy
@@ -150,13 +146,13 @@ export default class Game extends Phaser.Scene {
     }
 
     horizontalWrap(sprite) {
-        const halfWidth = sprite.displayWidth * 0.5
-        const gameWidth = this.scale.width
+        const halfWidth = sprite.displayWidth * 0.5;
+        const gameWidth = this.scale.width;
         if (sprite.x < -halfWidth) {
-            sprite.x = gameWidth + halfWidth
+            sprite.x = gameWidth + halfWidth;
         }
         else if (sprite.x > gameWidth + halfWidth) {
-            sprite.x = -halfWidth
+            sprite.x = -halfWidth;
         }
     }
 
@@ -164,7 +160,7 @@ export default class Game extends Phaser.Scene {
     * @param {Phaser.GameObjects.Sprite} sprite
     */
     addCoinAbove(sprite) {
-        const y = sprite.y - sprite.displayHeight
+        const y = sprite.y - sprite.displayHeight;
         /** @type {Phaser.Physics.Arcade.Sprite} */
         const coin = this.coins.get(sprite.x, y, 'coin');
 
@@ -203,15 +199,15 @@ export default class Game extends Phaser.Scene {
         const platforms = this.platforms.getChildren()
         let bottomPlatform = platforms[0]
         for (let i = 1; i < platforms.length; ++i) {
-            const platform = platforms[i]
+            const platform = platforms[i];
 
             if (platform.y < bottomPlatform.y) {
-                continue
+                continue;
             }
 
-            bottomPlatform = platform
+            bottomPlatform = platform;
         }
 
-        return bottomPlatform
+        return bottomPlatform;
     }
 }
